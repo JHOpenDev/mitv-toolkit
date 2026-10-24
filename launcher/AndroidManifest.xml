@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.minihome.tv"
-    android:versionCode="14"
-    android:versionName="2.3">
+    android:versionCode="16"
+    android:versionName="2.5">
 
     <uses-sdk android:minSdkVersion="21" android:targetSdkVersion="22" />
     <uses-permission android:name="android.permission.INTERNET" />
@@ -26,7 +26,10 @@
                 <category android:name="android.intent.category.HOME" />
             </intent-filter>
         </activity>
-            <activity android:name=".FileListActivity"
+            <activity android:name=".ScreenSaverActivity"
+            android:exported="true"
+            android:theme="@android:style/Theme.NoTitleBar.Fullscreen" />
+        <activity android:name=".FileListActivity"
             android:exported="false"
             android:theme="@android:style/Theme.NoTitleBar.Fullscreen" />
     </application>

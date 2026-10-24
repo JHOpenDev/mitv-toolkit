@@ -100,6 +100,14 @@ adb shell pm hide com.mitv.tvhome     # 把旧桌面藏起,HOME 键归 MiniHome
 
 改常用应用：编辑 `src/com/minihome/tv/MainActivity.java` 里的 `buildGrid()`。
 
+#### 照片屏保
+
+桌面 10 分钟无操作自动进入照片屏保（任意键退出）：优先读 U 盘照片
+（插上 USB 口即用，jpg/png，最多 200 张随机播放），无 U 盘时读电视本地 `/sdcard/屏保/`。
+交叉淡入淡出 + 缓推（Ken Burns），右下角半透明小时钟。
+**刻意不用系统 DreamService**：那需要重新打开 screensaver_enabled/熄屏定时，
+正是为保住 adb 连接专门关掉的东西——内置屏保零系统改动。
+
 #### 家庭文件（本地文件夹直达）
 
 桌面上的「家庭文件」方块打开电视本地存储的 `/sdcard/家庭文件/`：
