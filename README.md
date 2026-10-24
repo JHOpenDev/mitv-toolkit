@@ -100,6 +100,16 @@ adb shell pm hide com.mitv.tvhome     # 把旧桌面藏起,HOME 键归 MiniHome
 
 改常用应用：编辑 `src/com/minihome/tv/MainActivity.java` 里的 `buildGrid()`。
 
+#### 家庭文件（本地文件夹直达）
+
+桌面上的「家庭文件」方块打开电视本地存储的 `/sdcard/家庭文件/`：
+里面放几个文件夹就显示几个，可逐层进入；视频点击直接调系统播放器，图片直接看，断网可用。
+内容通过电脑拷入：`adb push 本地目录/* 电视IP:/sdcard/家庭文件/`，或 U 盘。
+
+> 关于把**网盘（如夸克）云端的文件夹**直接铺到桌面：不可行。实测其 TV 版只是个
+> 运行时壳（eskit/extscreen），所有页面运行时从服务器下发，APK 内无路由、无导出
+> 内容接口、无公开 API——云端内容只能进它的应用看。本地化常用内容才是老电视的最优解。
+
 ### 信号源切换（逆向结论）
 
 切源接口：`com.xiaomi.mitv.tvplayer/.ExternalSourceActivity`

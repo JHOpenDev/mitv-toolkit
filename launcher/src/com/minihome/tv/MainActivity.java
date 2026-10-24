@@ -165,6 +165,8 @@ public class MainActivity extends Activity implements View.OnClickListener {
         addAppTile(grid, "儿童思维", "com.lutongnet.nldmxXiaomiChildren");
         addAppTile(grid, "拼音乐园", "com.ihuman.pinyin.ott.vip");
         addAppTile(grid, "识字乐园", "com.hongen.app.word.ott.vip");
+        addTile(grid, "家庭文件", "dir:/sdcard/家庭文件",
+                getResources().getDrawable(R.drawable.mitv_icn_apps));
         addTile(grid, "设置", "pkg:com.xiaomi.mitv.settings",
                 getResources().getDrawable(R.drawable.mitv_icn_setting));
         return grid;
@@ -269,6 +271,10 @@ public class MainActivity extends Activity implements View.OnClickListener {
             switchSource(tag.substring(3));
         } else if (tag.startsWith("pkg:")) {
             launch(tag.substring(4));
+        } else if (tag.startsWith("dir:")) {
+            Intent it = new Intent(this, FileListActivity.class);
+            it.putExtra("path", tag.substring(4));
+            startActivity(it);
         }
     }
 
