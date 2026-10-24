@@ -1,0 +1,10 @@
+out/
+build/
+gen/
+obj/
+*.jar
+*.keystore
+sdk/
+TvHome.apk
+.DS_Store
+launcher/res/

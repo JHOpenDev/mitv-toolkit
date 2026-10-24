@@ -1,0 +1,21 @@
+# 永不触碰（动了轻则丢功能重则黑屏）
+# 此文件不用于执行,仅备忘
+
+com.mitv.tvhome                  # 桌面本体(要用 hide/unhide 切换,绝不能卸载或 clear)
+com.mstar.tv.service             # MStar 电视核心
+com.mstar.android.providers.tv
+xiaomi.tvservice                 # mitv.service 核心服务
+com.xiaomi.mitv.tvplayer         # 播放器+信号源切换(自建桌面依赖它)
+com.xiaomi.mitv.settings         # 系统设置
+com.xiaomi.mitv.smartshare       # 投屏链路(Miracast/DLNA)
+com.xiaomi.miplay                # 投屏/米家联动
+com.duokan.airkan.tvbox          # AirPlay/投屏
+com.xiaomi.dlnatvservice
+com.xiaomi.milink.udt
+com.xiaomi.voicecontrol          # 语音遥控
+com.xiaomi.mitv.remotecontroller.service
+com.android.systemui
+com.android.phone
+com.android.settings
+com.baidu.input                  # 默认输入法(动前先确认)
+com.xiaomi.mitv.providers.settings

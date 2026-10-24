@@ -1,0 +1,33 @@
+# 第一梯队：广告 / 遥测 / 推送（放心关，全部实测于小米电视2S Android 5.1.1）
+# 用法: scripts/debloat.sh 本文件   恢复: scripts/restore.sh 本文件
+# 每行一个包名，# 后为注释
+
+# 电商/广告SDK
+com.mitv.shoplugin          # 电视淘宝插件(阿里SDK),开机两进程
+com.miui.systemAdSolution   # 小米系统广告服务
+
+# 画报/壁纸(新旧两套,待机画报载体)
+com.xiaomi.tv.gallery
+com.mitv.gallery
+
+# 收视采集/内容识别
+com.xiaomi.mitv.kuyun.acr
+com.kuyun.common.androidtv
+
+# 推送
+com.xiaomi.mitv.tvpush.tvpushservice
+
+# 统计上报(四套)
+com.xiaomi.statistic
+com.xiaomi.mitv.osstatistic
+com.miui.tv.analytics
+com.xiaomi.devicereport
+
+# 云服务
+com.miui.cloudservice
+
+# 电视管家(清理类,常驻)
+com.xiaomi.mitv.tvmanager
+
+# 输入法(先确认默认输入法不是它: adb shell settings get secure default_input_method)
+com.sohu.inputmethod.sogou.tv

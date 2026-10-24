@@ -1,0 +1,19 @@
+# 第二梯队：可选（逐项自己决定；注意副作用）
+# 用法: scripts/debloat.sh 本文件   恢复: scripts/restore.sh 本文件
+
+# ---- 升级链(强烈建议全关;想收OTA/应用更新时先 restore 这几行) ----
+com.xiaomi.mitv.appstore             # 应用商店:注意!某些固件上它负责桌面应用列表渲染,关掉可能丢图标
+com.mitv.appstore.component.land     # 商店组件(同上)
+com.xiaomi.tv.appupgrade             # 应用自动升级
+com.xiaomi.mitv.upgrade              # 系统固件OTA
+
+# ---- 看情况 ----
+com.xiaomi.mibox.gamecenter          # 游戏中心(开机自启)
+com.xiaomi.gamecenter.sdk.service.mibox
+com.baidu.tv.download                # 百度推送下载器
+com.xiaomi.tweather                  # 天气
+com.xiaomi.mimusic                   # 小米音乐(网络电台在其中)
+com.xm.webcontent                    # 推广网页容器
+com.xiaomi.mitv.mediaexplorer        # 本地媒体浏览
+com.xiaomi.mitv.shop                 # 电视商城
+com.mipay.wallet.tv                  # 小米钱包
