@@ -13,8 +13,12 @@ import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
 
-/** 天气: ip-api 定位(中文城市+经纬度) -> open-meteo 当前天气 -> 中文一行 */
+/** 天气: ip-api 定位(中文城市+经纬度,失败用固定城市兜底) -> open-meteo -> 中文一行; 失败时保留旧显示不清空 */
 public class WeatherTask extends Thread {
+
+    private static final String FALLBACK_CITY = "北京";
+    private static final double FALLBACK_LAT = 39.9042;
+    private static final double FALLBACK_LON = 116.4074;
 
     private final Activity act;
     private final TextView tv;
@@ -26,31 +30,41 @@ public class WeatherTask extends Thread {
 
     @Override
     public void run() {
-        String text = "";
-        try {
-            if (netOk()) {
+        String city = FALLBACK_CITY;
+        double lat = FALLBACK_LAT;
+        double lon = FALLBACK_LON;
+        if (netOk()) {
+            try {
                 JSONObject loc = new JSONObject(
                         get("http://ip-api.com/json/?lang=zh-CN&fields=status,city,lat,lon"));
                 if ("success".equals(loc.optString("status"))) {
-                    String city = loc.optString("city", "");
-                    double lat = loc.optDouble("lat");
-                    double lon = loc.optDouble("lon");
-                    JSONObject w = new JSONObject(get(
-                            "http://api.open-meteo.com/v1/forecast?latitude="
-                                    + lat + "&longitude=" + lon + "&current_weather=true"));
-                    JSONObject cw = w.optJSONObject("current_weather");
-                    if (cw != null) {
-                        int code = cw.optInt("weathercode", -1);
-                        double temp = cw.optDouble("temperature");
-                        text = city + " " + condText(code) + " " + Math.round(temp) + "°C";
-                    }
+                    city = loc.optString("city", FALLBACK_CITY);
+                    lat = loc.optDouble("lat", FALLBACK_LAT);
+                    lon = loc.optDouble("lon", FALLBACK_LON);
                 }
+            } catch (Throwable ignored) {
             }
-        } catch (Throwable ignored) {
-            text = "";
         }
-        final String result = text;
-        act.runOnUiThread(new UiUpdate(tv, result));
+        String text = "";
+        if (netOk()) {
+            try {
+                JSONObject w = new JSONObject(get(
+                        "http://api.open-meteo.com/v1/forecast?latitude="
+                                + lat + "&longitude=" + lon + "&current_weather=true"));
+                JSONObject cw = w.optJSONObject("current_weather");
+                if (cw != null) {
+                    int code = cw.optInt("weathercode", -1);
+                    double temp = cw.optDouble("temperature");
+                    text = city + " " + condText(code) + " " + Math.round(temp) + "°C";
+                }
+            } catch (Throwable ignored) {
+                text = "";
+            }
+        }
+        if (text.length() > 0) {
+            final String result = text;
+            act.runOnUiThread(new UiUpdate(tv, result));
+        }
     }
 
     private String get(String url) throws Exception {

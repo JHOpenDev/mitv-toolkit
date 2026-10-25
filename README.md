@@ -100,6 +100,16 @@ adb shell pm hide com.mitv.tvhome     # 把旧桌面藏起,HOME 键归 MiniHome
 
 改常用应用：编辑 `src/com/minihome/tv/MainActivity.java` 里的 `buildGrid()`。
 
+#### Switch 游戏限时（家长助手）
+
+点桌面「Switch」即隐式开始 40 分钟计时（时长在 MainActivity 里改）：
+- 剩 1 分钟、30 秒：全屏半透明横幅提示各闪 4 秒
+- 最后 5 秒：大数字实时倒数 5→1
+- 时间到：自动返回桌面 + 提示
+- 中途自己按主页回桌面 = 计时终止（下次点 Switch 重新计时）
+> 本想用悬浮窗角标做角落实时倒计时,但 MIUI 5.1 拒绝 `pm grant SYSTEM_ALERT_WINDOW`,
+> 悬浮窗 addView 也会被拦——半透明横幅 Activity 是这台机器上最稳的提醒形态。
+
 #### 照片屏保
 
 桌面 10 分钟无操作自动进入照片屏保（任意键退出）：优先读 U 盘照片

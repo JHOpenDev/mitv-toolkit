@@ -34,6 +34,8 @@ public class MainActivity extends Activity implements View.OnClickListener {
     private Handler mHandler;
     private long mLastTouch;
     private TextView mWeather;
+    private long mLastWeather;
+    private static final long WEATHER_STALE_MS = 30 * 60 * 1000;   // 天气最多半小时刷新一次
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -62,6 +64,8 @@ public class MainActivity extends Activity implements View.OnClickListener {
 
         updateWifi();
         fetchWeather();
+        mLastWeather = SystemClock.elapsedRealtime();
+        BootSound.play(this);
     }
 
     /** 顶栏: 左「极简桌面」 / 右 WiFi + 天气 + 日期时间 */
@@ -247,6 +251,7 @@ public class MainActivity extends Activity implements View.OnClickListener {
     @Override
     protected void onResume() {
         super.onResume();
+        stopService(new Intent(this, TimerService.class));   // 回到桌面即结束计时
         focusCurrent();
         updateWifi();
         mLastTouch = SystemClock.elapsedRealtime();
@@ -270,6 +275,10 @@ public class MainActivity extends Activity implements View.OnClickListener {
 
     /** IdleCheck 每 30 秒回调 */
     public void checkIdle() {
+        if (SystemClock.elapsedRealtime() - mLastWeather >= WEATHER_STALE_MS) {
+            mLastWeather = SystemClock.elapsedRealtime();
+            fetchWeather();
+        }
         if (SystemClock.elapsedRealtime() - mLastTouch >= IDLE_MS && PhotoScan.hasPhotos()) {
             startActivity(new Intent(this, ScreenSaverActivity.class));
         }
@@ -278,6 +287,11 @@ public class MainActivity extends Activity implements View.OnClickListener {
 
     public void onClick(View v) {
         String tag = String.valueOf(v.getTag());
+        if ("in:24".equals(tag)) {                 // Switch: 限时40分钟
+            Intent timer = new Intent(this, TimerService.class);
+            timer.putExtra("secs", 40 * 60);
+            startService(timer);
+        }
         if (tag.startsWith("in:")) {
             switchSource(tag.substring(3));
         } else if (tag.startsWith("pkg:")) {
