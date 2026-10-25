@@ -107,11 +107,11 @@ public class MainActivity extends Activity implements View.OnClickListener {
         return v;
     }
 
-    /** 主体: 2×2 大卡片铺满剩余空间 */
+    /** 主体: 居中 2×2 卡片组 (560x240, 图标100) */
     private LinearLayout buildBody() {
         LinearLayout body = new LinearLayout(this);
         body.setOrientation(LinearLayout.VERTICAL);
-        body.setPadding(64, 44, 64, 44);
+        body.setGravity(Gravity.CENTER);
 
         LinearLayout row1 = newRow();
         LinearLayout row2 = newRow();
@@ -121,14 +121,16 @@ public class MainActivity extends Activity implements View.OnClickListener {
         addBigTile(row2, "夸克网盘", "pkg:com.quark.yun.tv", R.drawable.ic_quark);
         addBigTile(row2, "设置", "pkg:com.xiaomi.mitv.settings", R.drawable.ic_settings);
 
-        body.addView(row1, new LinearLayout.LayoutParams(-1, 0, 1f));
-        body.addView(row2, new LinearLayout.LayoutParams(-1, 0, 1f));
+        body.addView(row1);
+        body.addView(row2);
         return body;
     }
 
     private LinearLayout newRow() {
         LinearLayout l = new LinearLayout(this);
         l.setOrientation(LinearLayout.HORIZONTAL);
+        l.setGravity(Gravity.CENTER_HORIZONTAL);
+        l.setLayoutParams(new LinearLayout.LayoutParams(-1, -2));
         return l;
     }
 
@@ -141,15 +143,17 @@ public class MainActivity extends Activity implements View.OnClickListener {
         ImageView iv = new ImageView(this);
         iv.setImageResource(iconRes);
         iv.setScaleType(ImageView.ScaleType.FIT_CENTER);
-        iv.setLayoutParams(new LinearLayout.LayoutParams(230, 230));
+        iv.setLayoutParams(new LinearLayout.LayoutParams(130, 130));
         card.addView(iv);
 
         TextView tv = new TextView(this);
         tv.setText(label);
-        tv.setTextSize(26);
+        tv.setTextSize(18);
         tv.setTypeface(Typeface.create("sans-serif-light", Typeface.NORMAL));
         tv.setTextColor(Color.WHITE);
-        tv.setPadding(0, 22, 0, 0);
+        tv.setPadding(0, 10, 0, 0);
+        tv.setGravity(Gravity.CENTER);
+        tv.setLayoutParams(new LinearLayout.LayoutParams(130, -2));
         card.addView(tv);
 
         card.setFocusable(true);
@@ -158,11 +162,11 @@ public class MainActivity extends Activity implements View.OnClickListener {
         applyBg(card, false);
         mGrid.add(card);
 
-        LinearLayout.LayoutParams p = new LinearLayout.LayoutParams(0, -1, 1f);
-        p.leftMargin = 20;
-        p.rightMargin = 20;
-        p.topMargin = 16;
-        p.bottomMargin = 16;
+        LinearLayout.LayoutParams p = new LinearLayout.LayoutParams(560, 240);
+        p.leftMargin = 22;
+        p.rightMargin = 22;
+        p.topMargin = 22;
+        p.bottomMargin = 22;
         row.addView(card, p);
     }
 
