@@ -16,6 +16,7 @@
 | 开机广告 | 20 秒不可跳过 | 无 |
 | 后台内存压力(swap) | 接近满 | 基本为零 |
 | 屏保/假待机随机断连 adb | 有 | 可关闭 |
+| 开机落点 | 旧桌面(需手动) | 开机约 1 分钟内自动回到 MiniHome(见下「HOME 保卫战」) |
 
 ## 为什么不用现成项目？
 
@@ -73,42 +74,43 @@ adb install -r -d TvHome.apk                       # -d 允许降级;同签名�
 装上第 4 步的 MiniHome 并把旧桌面 `pm hide` 后，开机直接进 MiniHome，广告载体整个消失。
 **反悔**：`adb install -r <你备份的新版桌面.apk> && adb shell pm unhide com.mitv.tvhome`。
 
-### 4. MiniHome 极简桌面
+### 4. MiniHome 极简桌面（v5 壁纸版）
 
 ```
-┌────────────────────────────────────────────────┐
-│ 极简桌面    📶 城市 多云 15°C   2026年10月24日 星期六 18:13:36 │
-├────────────────────────────────────────────────┤
-│     [有线电视]   [Switch]   [夸克网盘]             │
-│     [儿童思维]   [拼音乐园]  [识字乐园]             │
-│     [设置]                                     │
-└────────────────────────────────────────────────┘
+┌──────────────────────────────────────────────┐
+│  (相册壁纸 + 三层渐变蒙皮)        18:13      │
+│                              10月24日 星期六  │
+│  全部应用                    城市 多云 15°C   │
+│  [夸克网盘][相册][文件][日历]  ┌───────────┐ │
+│  [投屏] [音乐][天气][设置]    │ 启动Switch │ │
+│  …(自动扫描全部已装应用)      ├───────────┤ │
+│  [老系统](虚线磁贴)           │开启有线电视│ │
+│                              └───────────┘ │
+│ OK 启动 · 长按OK 隐藏/排序 · 长按老系统 管理隐藏│
+└──────────────────────────────────────────────┘
 ```
 
-- 纯 Android framework 代码，零依赖，~20 KB
-- 信号源一键直切（extras 逆向结论见下）、WiFi 强度、IP 定位天气（纯 HTTP，绕开 Android 5.1 的证书问题）、时钟到秒
-- 全屏沉浸（压掉 MIUI 系统状态栏）
-- 应用图标运行时读系统；信号源图标构建时从你自己电视的出厂桌面 APK 提取（版权原因仓库不带）
+- 纯 Android framework 代码，零依赖；全部顶层类（d8 编译器对内部类/匿名类有 NPE bug）
+- **壁纸**：U 盘/本地相册照片打底（按「天数+开机次数」轮换，每次开机换一张），三层渐变蒙皮保证文字可读；解码失败自动回退本地照片池，30 秒巡检自愈（开机早期能存储未就绪也不怕）
+- **应用墙**：`queryIntentActivities` 自动扫描全部可启动应用（真实图标+名称排序），4 列网格；长按 OK 弹「上移/下移/隐藏/管理」，顺序与隐藏清单存 SharedPreferences；长按「老系统」磁贴打开隐藏面板可恢复
+- **两张操作卡**：启动 Switch（直切 HDMI2）/ 开启有线电视（直切 TV 调谐器，无信号面板）
+- **焦点动效**：放大 1.06 + 橙色光圈 + 描边加粗，150ms；缩放作用在内层卡片上防越界裁剪；网格↔卡片列手动四向导航（原生 beam 焦点搜索在这种布局会死胡同）
+- 天气走纯 HTTP（ip-api 定位失败兜底固定城市 + open-meteo，绕开 Android 5.1 证书问题），30 分钟重刷，失败不清空旧显示
 
-构建（会自动下载 SDK 组件并从电视提取图标，需要电视 adb 在线）：
+构建（首次自动下载 SDK；电视不在线也能构建，图标用占位图）：
 
 ```bash
 cd launcher
-./build.sh                 # 产出 out/MiniHome.apk 并安装
-adb shell pm hide com.mitv.tvhome     # 把旧桌面藏起,HOME 键归 MiniHome
+TV_IP=192.168.x.x ./build.sh   # 构建 + 免人值守安装(自动点掉 MIUI 安装确认框)
+./build.sh --no-install        # 只构建
 ```
 
-改常用应用：编辑 `src/com/minihome/tv/MainActivity.java` 里的 `buildGrid()`。
+#### Switch 计时（v5 已默认移除）
 
-#### Switch 游戏限时（家长助手）
-
-点桌面「Switch」即隐式开始 40 分钟计时（时长在 MainActivity 里改）：
-- 剩 1 分钟、30 秒：全屏半透明横幅提示各闪 4 秒
-- 最后 5 秒：大数字实时倒数 5→1
-- 时间到：自动返回桌面 + 提示
-- 中途自己按主页回桌面 = 计时终止（下次点 Switch 重新计时）
-> 本想用悬浮窗角标做角落实时倒计时,但 MIUI 5.1 拒绝 `pm grant SYSTEM_ALERT_WINDOW`,
-> 悬浮窗 addView 也会被拦——半透明横幅 Activity 是这台机器上最稳的提醒形态。
+点「启动 Switch」直接切 HDMI2，不再计时（按家庭需求移除，`TimerService` 源码保留可自行启用）。
+保留了工作日晚间的「不玩 Switch」提醒（可改 `isSchoolNight()`）。
+实测补充：这台电视的 MIUI **允许** `TYPE_SYSTEM_ALERT` 悬浮角标（此前"悬浮窗必被拦"是手机端 MIUI 的结论），
+TimerService 的实时倒计时角标可用，横幅 Activity 作为兜底。
 
 #### 照片屏保
 
@@ -144,6 +146,44 @@ adb shell am start -n com.xiaomi.mitv.tvplayer/.ExternalSourceActivity \
 
 ---
 
+## HOME 保卫战：MIUI 硬编码默认桌面的对抗记录（本项目最硬的一仗）
+
+想让第三方桌面在开机时直接顶掉 2015 桌面，实测走通了这条路：
+
+1. **MIUI 把 HOME 硬编码给系统桌面**。证据：`pm hide` 旧桌面后按 HOME 正确落到 MiniHome，
+   `pm unhide` 一恢复立刻抢回；老桌面在前台时按 HOME 是它自己拉自己（uid=1000 发的显式 intent）。
+2. **`addPreferredActivity` 无效**：`SET_PREFERRED_APPLICATIONS` 是签名级权限，普通应用安装时被拒发
+   （logcat: `Not granting permission ... protectionLevel=2`）。
+3. **系统选择器「始终」有效但会被覆盖安装作废**：
+   `adb shell am start -n android/com.android.internal.app.ResolverActivity -a android.intent.action.MAIN -c android.intent.category.HOME -f 0x10000000`
+   弹出选择器，选 MiniHome + 始终 → 写入 `mAlways=true`，重启保留；但**每次 install 覆盖本包都会作废**。
+4. **开机广播全被自启动策略拦**：`BOOT_COMPLETED`、`MEDIA_MOUNTED` 都收不到（开机进程表里本包从未被拉起）。
+5. **破局：账号周期同步自愈**。Android 的同步调度由系统框架在开机后自行恢复，**不走广播、不受 MIUI 自启动管制**：
+   - 假账号（`AccountAuthenticator` stub）+ `SyncAdapter` + 空 `ContentProvider`，周期 60 秒
+   - 双条件把桌面拉到前台（任一命中）：内核开机计时 <5 分钟（快速开关机也算）；或墙钟打卡间隔 >3 分钟（长时间断电）
+   - 平时同步空转零打扰；每次 `install -r` 后还有 `MY_PACKAGE_REPLACED` 广播（这个能收到）自动把新桌面拉到前台
+   - 副作用：系统账号列表里多一个不可见的 stub 账号
+
+结果：**开机 →（旧桌面/信号源至多约 1 分钟）→ MiniHome 自动到前台**。旧桌面保持可见以便「老系统」磁贴直进，
+返回键即可退出。附赠逃生口：MiniHome 同时注册 `CATEGORY_LAUNCHER`，旧桌面的应用列表里永远能手动点开它。
+
+## 运维小抄（这台机器的隐性坑）
+
+- **adb server 会僵死**：ping 通但 `adb connect` 报 `No route to host` → `adb kill-server && adb start-server`
+- **`adb install` 长连接易断流假成功**：稳妥两步法 `adb push` + `pm install`；MIUI 的「安装确认」框卡住时
+  adb 仍可用——`uiautomator dump` 拿坐标 + `input tap` 直接点掉（build.sh 已内置）
+- **每次重启会自动关闭 ADB 调试开关**：需到 设置→账号与安全 重开（系统行为，改不掉）
+- **别把 SDK 放 /tmp**：macOS 数天不访问即清空，构建环境一夜蒸发
+
+## 网盘类应用「闪退」的真相（以夸克 TV 版为例）
+
+现象：使用中时不时退回桌面。日志实锤**不是崩溃**——进程从不死亡、无 FATAL、无系统查杀；
+是 eskit 壳在内存耗尽时**主动关页自保**（退页前 Java 堆 GC 抖到 "1% free"、路由关闭、播放器释放）。
+1GB 内存的 2015 电视跑云端下发页面的重型应用，这是结构性矛盾。
+缓解：用完按返回彻底退出（立刻还 ~160MB）；闪退后再进秒开不丢登录态。
+
+---
+
 ## 本代机器的坑（全部实测，写在这里省你几小时）
 
 | 现象 | 真相 | 对策 |
@@ -173,7 +213,8 @@ mitv-toolkit/
 ├── README.md
 ├── debloat/            两档清理清单 + 永不触碰清单
 ├── scripts/            audit / boot-timeline / debloat / restore
-└── launcher/           MiniHome 源码 + 一键构建脚本
+├── launcher/           MiniHome 源码 + 一键构建脚本
+│   └── res/xml/        同步自愈的 authenticator/syncadapter/device_admin 配置
 ```
 
 ## License

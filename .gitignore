@@ -7,4 +7,5 @@ obj/
 sdk/
 TvHome.apk
 .DS_Store
-launcher/res/
+launcher/res/drawable-*/
+launcher/res/raw/

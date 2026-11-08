@@ -126,9 +126,9 @@ public class TimerService extends Service {
         removeOverlay();
         Toast.makeText(this, "🎮 Switch 时间到！已返回桌面", Toast.LENGTH_LONG).show();
         try {
-            Intent home = new Intent(Intent.ACTION_MAIN);
-            home.addCategory(Intent.CATEGORY_HOME);
-            home.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+            // 显式回极简桌面: 通用 HOME intent 在本机会被 MIUI 解析到老桌面
+            Intent home = new Intent(this, MainActivity.class);
+            home.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP);
             startActivity(home);
         } catch (Throwable ignored) {
         }

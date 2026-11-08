@@ -28,6 +28,13 @@ public class PhotoScan {
         walk(local, 0, out);
     }
 
+    /** 只扫本地 /sdcard/屏保 (U盘照片解码失败时的兜底池) */
+    public static void findLocalPhotos(List<String> out) {
+        out.clear();
+        File local = new File("/sdcard/屏保");
+        walk(local, 0, out);
+    }
+
     private static void walk(File dir, int depth, List<String> out) {
         if (depth > MAX_DEPTH || out.size() >= MAX_FILES) return;
         File[] items = dir.listFiles();
